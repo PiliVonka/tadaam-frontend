@@ -1,50 +1,66 @@
-import React, { useEffect } from "react";
-import { Web3ReactProvider, useWeb3React } from "@web3-react/core";
+import React from "react";
+import { Web3ReactProvider } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
+import { makeStyles } from "@material-ui/core";
 
-import { InjectedConnector } from "@web3-react/injected-connector";
+import { Switch, Route, useRouteMatch } from "react-router-dom";
 
-export const injectedConnector = new InjectedConnector({
-  supportedChainIds: [
-    1, // Mainet
-    3, // Ropsten
-    4, // Rinkeby
-    5, // Goerli
-    42, // Kovan
-    1337, // local
-  ],
-});
+import RunCode from "./views/RunCode";
 
-function getLibrary (provider) {
+import TopBar from "src/components/TopBar";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    backgroundColor: theme.palette.background.dark,
+    display: "flex",
+    height: "100%",
+    overflow: "hidden",
+    width: "100%",
+  },
+  wrapper: {
+    display: "flex",
+    flex: "1 1 auto",
+    overflow: "hidden",
+    paddingTop: 64,
+  },
+  contentContainer: {
+    display: "flex",
+    flex: "1 1 auto",
+    overflow: "hidden",
+  },
+  content: {
+    flex: "1 1 auto",
+    height: "100%",
+    overflow: "auto",
+  },
+}));
+
+const getLibrary = (provider) => {
   const library = new Web3Provider(provider);
   library.pollingInterval = 12000;
   return library;
-}
+};
 
-export const Wallet = () => {
-  const { chainId, account, activate, active } = useWeb3React();
-  useEffect(() => {
-    activate(injectedConnector);
-  });
+const ContractLayout = () => {
+  const classes = useStyles();
+  const { path } = useRouteMatch();
 
   return (
-    <div>
-      <div>ChainId: {chainId}</div>
-      <div>Account: {account}</div>
-      <div>Active: {active}</div>
-      {active ? (
-        <div> Done </div>
-      ) : null }
-    </div>
+      <div className={classes.root}>
+        <TopBar />
+        <div className={classes.wrapper}>
+          <div className={classes.contentContainer}>
+            <div className={classes.content}>
+              <Web3ReactProvider getLibrary={getLibrary}>
+                <Switch>
+                  <Route path={`${path}/run-code`} component={RunCode} />
+                </Switch>
+              </Web3ReactProvider>
+            </div>
+          </div>
+        </div>
+      </div>
   );
 };
 
-export const App = () => {
-  return (
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <Wallet />
-    </Web3ReactProvider>
-  );
-};
-
-export default App;
+export default ContractLayout;

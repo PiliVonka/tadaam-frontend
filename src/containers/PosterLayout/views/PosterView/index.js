@@ -20,7 +20,10 @@ import {
 
 import { Spin } from "antd";
 
+// Graphql
 import { posterQueries } from "src/graphql/graphql";
+
+// Components
 import Page from "src/components/Page";
 
 const useStyles = makeStyles(theme => ({

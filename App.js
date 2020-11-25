@@ -23,10 +23,10 @@ const App = props => {
         <ThemeProvider theme={theme}>
           <GlobalStyles />
           <Switch>
-            <PrivateRoute path="/worker" component={WorkerLayout} />
+            <PrivateRoute path='/worker' component={WorkerLayout} />
             <GuestRoute path="/app" component={GuestLayout} />
             <Route path="/posters" component={MainLayout} />
-            <Route path="/contract" component={ContractLayout} />
+            <PrivateRoute path="/contract" component={ContractLayout} />
           </Switch>
         </ThemeProvider>
       </CheckIfLoggedIn>
