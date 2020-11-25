@@ -53,7 +53,7 @@ const ContractLayout = () => {
             <div className={classes.content}>
               <Web3ReactProvider getLibrary={getLibrary}>
                 <Switch>
-                  <Route path={`${path}/run-code`} component={RunCode} />
+                  <Route path={`${path}/run-code/:id`} component={RunCode} />
                 </Switch>
               </Web3ReactProvider>
             </div>

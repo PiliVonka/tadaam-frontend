@@ -1,15 +1,16 @@
 // External
-import React, { useEffect } from "react";
-import { InjectedConnector } from "@web3-react/injected-connector";
-import { useWeb3React } from "@web3-react/core";
+import React, { useEffect, useState, useCallback } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import { useMutation, useLazyQuery, useQuery } from "@apollo/react-hooks";
 
 // Icons
-import CodeIcon from "@material-ui/icons/Code";
+import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import PlayCircleFilledWhiteIcon from "@material-ui/icons/PlayCircleFilledWhite";
+import RefreshIcon from "@material-ui/icons/Refresh";
+
+import { Spin } from "antd";
 
 import {
-  CardActions,
   CardContent,
   CardHeader,
   Container,
@@ -18,6 +19,11 @@ import {
   IconButton,
   Grid
 } from "@material-ui/core";
+
+// Local
+import { ADD_SUBMISSION } from "src/graphql/mutations/submission";
+import { CHECK_SUBMISSION } from "src/graphql/queries/submission";
+import { GET_POSTER } from "src/graphql/queries/poster";
 
 // Local components
 import Editor from "src/components/Editor";
@@ -32,80 +38,129 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const injectedConnector = new InjectedConnector({
-  supportedChainIds: [
-    1, // Mainet
-    3, // Ropsten
-    4, // Rinkeby
-    5, // Goerli
-    42, // Kovan
-    1337, // local
-  ],
-});
-
-const RunCode = () => {
-  const { chainId, account, activate, active } = useWeb3React();
-  useEffect(() => {
-    // activate(injectedConnector);
-  });
+const RunCode = ({ match }) => {
+  // Init style
   const classes = useStyles();
+
+  // Init apollo queries
+  const [addSubmission, addSubmissionResult] = useMutation(ADD_SUBMISSION);
+  const [checkSubmission, checkSubmissionResult] = useLazyQuery(CHECK_SUBMISSION);
+
+  // Set code and run
+  const [code, setCode] = useState("");
+  const editorOnChange = useCallback((newCode) => {
+    setCode(newCode);
+  });
+  const runCode = useCallback(() => {
+    addSubmission({ variables: { code } });
+  });
+
+  // Callback to refresh the code result
+  const refreshResult = useCallback(() => {
+    const { loading, data, error } = addSubmissionResult;
+    if (!loading && data && !error) {
+      const { id } = data.addSubmission;
+      checkSubmission({ variables: { id }, useCache: false });
+    }
+  });
+
+  // Get poster
+  const { id } = match.params;
+  const { loading: posterLoading, error: posterError, data: posterData } = useQuery(GET_POSTER, { variables: { id } });
+  if (posterLoading || (!posterError && !posterData)) {
+    return (
+      <Spin />
+    );
+  }
+  if (posterError) {
+    return (
+      <Page className={classes.root} title="Run Code">
+        <Typography variant="body2" color="textSecondary" component="p">
+          {JSON.stringify(posterError)}
+        </Typography>
+      </Page>
+    );
+  }
+  const { title, description } = posterData.poster;
+
+  const { error: resultError, data: resultData, loading: resultLoading } = checkSubmissionResult;
+  const result = !resultLoading && (resultData || resultError)
+    ? (resultError ? JSON.stringify(resultError) : JSON.stringify(resultData))
+    : "";
+
+  const { error: statusError, data: statusData, loading: statusLoading } = addSubmissionResult;
+  const status = !statusLoading && (statusData || statusError)
+    ? (statusError ? JSON.stringify(statusError) : JSON.stringify(statusData))
+    : "";
 
   return (
       <Page className={classes.root} title="Run Code">
-      <Container maxWidth={true}>
+      <Container maxWidth={false}>
       <Grid container spacing={3}>
         <Grid item key="2" lg={5} sm={12} xl={5} xs={12}>
           <Card>
             <CardHeader
               title={"Actions"}
-              subheader="Press button"
             />
             <CardContent>
-            <IconButton>
+              <IconButton onClick={runCode}>
                 <PlayCircleFilledWhiteIcon/>
               </IconButton>
+              <IconButton onClick={refreshResult}>
+                <RefreshIcon/>
+              </IconButton>
               <IconButton>
-                <CodeIcon/>
+                <SaveAltIcon/>
               </IconButton>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader
-              title={"Your wallet info"}
-              subheader="September 14, 2016"
-            />
-            <CardContent>
-              <Typography variant="body2" color="textSecondary" component="p">
-                <div>ChainId: {chainId}</div>
-                <div>Account: {account}</div>
-                <div>Active: {active}</div>
-                {active ? (<div> Done </div>) : null }
-              </Typography>
-            </CardContent>
-          </Card>
-
           <Card>
             <CardHeader
               title={"Description"}
-              subheader="September 14, 2016"
             />
             <CardContent>
-              <Typography variant="p" color="textSecondary" component="p">
-                Write a function, which adds two numbers
-              </Typography>
               <Typography variant="h6" color="textSecondary" component="h6">
-                Input: 4, 5
+                {title}
               </Typography>
-              <Typography variant="h6" color="textSecondary" component="h6">
-                Output: 9
+              <Typography variant="body1" color="textSecondary" component="p">
+                {description}
               </Typography>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader
+              title={"Run status"}
+            />
+            <CardContent>
+              <Typography variant="h6" color="textSecondary" component="p">
+                {status}
+              </Typography>
+            </CardContent>
+          </Card>
 
+          <Card>
+            <CardHeader
+              title={"Results"}
+            />
+            <CardContent>
+              <Typography variant="h6" color="textSecondary" component="h6">
+                {result}
+              </Typography>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader
+              title={"Your wallet info"}
+            />
+            <CardContent>
+              <Typography variant="body2" color="textSecondary" component="p">
+                <div>Account: </div>
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid item key="1" lg={7} sm={12} xl={7} xs={12}>
-        <Editor />
+          <Editor onChange={editorOnChange} code={code} />
         </Grid>
       </Grid>
       </Container>

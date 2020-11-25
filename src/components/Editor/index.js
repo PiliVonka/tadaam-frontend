@@ -5,18 +5,18 @@ import "ace-builds/src-noconflict/mode-c_cpp";
 import "ace-builds/src-noconflict/theme-monokai";
 
 const options = {
-  enableBasicAutocompletion: false,
-  enableLiveAutocompletion: false,
+  enableBasicAutocompletion: true,
+  enableLiveAutocompletion: true,
   enableSnippets: false,
   showLineNumbers: true,
   tabSize: 2,
 };
 
-const Editor = () => {  
-    return (
+const Editor = ({ onChange, code }) => {
+  return (
       <AceEditor
         width="%100"
-        height={1000}
+        height="1000px"
         mode="c_cpp"
         theme="monokai"
         name="blah2"
@@ -24,9 +24,11 @@ const Editor = () => {
         showPrintMargin={true}
         showGutter={true}
         highlightActiveLine={true}
-        value=""
-        setOptions={options}/>      
-    );
+        value={code}
+        onChange={onChange}
+        setOptions={options}
+      />
+  );
 };
 
 export default Editor;

@@ -15,7 +15,8 @@ import {
 
 import {
   Person as PersonIcon,
-  Favorite as FavoriteIcon
+  Favorite as FavoriteIcon,
+  Code as CodeIcon
 } from "@material-ui/icons";
 
 import { Spin } from "antd";
@@ -36,7 +37,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const PosterView = ({ match }) => {
-  console.log({ match });
   const { id } = match.params;
   const classes = useStyles();
   const { loading, error, data } = useQuery(posterQueries.GET_POSTER, { variables: { id } });
@@ -60,7 +60,7 @@ const PosterView = ({ match }) => {
         <Card className={classes.root}>
           <CardHeader
             title={poster.title}
-            subheader="September 14, 2016"
+            subheader="September 14, 2020"
           />
           <CardContent>
             <Typography variant="body2" color="textSecondary" component="p">
@@ -73,6 +73,9 @@ const PosterView = ({ match }) => {
             </IconButton>
             <IconButton aria-label="show person">
               <PersonIcon />
+            </IconButton>
+            <IconButton aria-label="solve" href={`/contract/run-code/${id}`}>
+              <CodeIcon />
             </IconButton>
           </CardActions>
         </Card>
