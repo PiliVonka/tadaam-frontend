@@ -5,8 +5,8 @@ import { useWeb3React } from "@web3-react/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 // Icons
-import CodeIcon from '@material-ui/icons/Code';
-import PlayCircleFilledWhiteIcon from '@material-ui/icons/PlayCircleFilledWhite';
+import CodeIcon from "@material-ui/icons/Code";
+import PlayCircleFilledWhiteIcon from "@material-ui/icons/PlayCircleFilledWhite";
 
 import {
   CardActions,
@@ -32,26 +32,25 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-
 const injectedConnector = new InjectedConnector({
-    supportedChainIds: [
-      1, // Mainet
-      3, // Ropsten
-      4, // Rinkeby
-      5, // Goerli
-      42, // Kovan
-      1337, // local
-    ],
-  });
-  
-const RunCode = () => {
-    const { chainId, account, activate, active } = useWeb3React();
-    useEffect(() => {
-      // activate(injectedConnector);
-    });
-    const classes = useStyles();
+  supportedChainIds: [
+    1, // Mainet
+    3, // Ropsten
+    4, // Rinkeby
+    5, // Goerli
+    42, // Kovan
+    1337, // local
+  ],
+});
 
-    return (
+const RunCode = () => {
+  const { chainId, account, activate, active } = useWeb3React();
+  useEffect(() => {
+    // activate(injectedConnector);
+  });
+  const classes = useStyles();
+
+  return (
       <Page className={classes.root} title="Run Code">
       <Container maxWidth={true}>
       <Grid container spacing={3}>
@@ -81,9 +80,7 @@ const RunCode = () => {
                 <div>ChainId: {chainId}</div>
                 <div>Account: {account}</div>
                 <div>Active: {active}</div>
-                {active ? (
-                  <div> Done </div>
-                ) : null }
+                {active ? (<div> Done </div>) : null }
               </Typography>
             </CardContent>
           </Card>
@@ -103,7 +100,7 @@ const RunCode = () => {
               <Typography variant="h6" color="textSecondary" component="h6">
                 Output: 9
               </Typography>
-              
+
             </CardContent>
           </Card>
         </Grid>
@@ -113,7 +110,7 @@ const RunCode = () => {
       </Grid>
       </Container>
     </Page>
-    );
-  };
+  );
+};
 
 export default RunCode;
