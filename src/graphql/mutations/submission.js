@@ -8,3 +8,12 @@ export const ADD_SUBMISSION = gql`
     }
   }
 `;
+
+export const CHECK_SUBMISSION = gql`
+  mutation CheckSubmission ($id: ID!) {
+    checkSubmission(id: $id) {
+      status
+      finished
+    }
+  }
+`;

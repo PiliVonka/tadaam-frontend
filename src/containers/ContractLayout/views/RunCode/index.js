@@ -1,7 +1,7 @@
 // External
 import React, { useEffect, useState, useCallback } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { useMutation, useLazyQuery, useQuery } from "@apollo/react-hooks";
+import { useMutation, useQuery } from "@apollo/react-hooks";
 
 // Icons
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
@@ -21,14 +21,30 @@ import {
 } from "@material-ui/core";
 
 // Local
-import { ADD_SUBMISSION } from "src/graphql/mutations/submission";
-import { CHECK_SUBMISSION } from "src/graphql/queries/submission";
+import { ADD_SUBMISSION, CHECK_SUBMISSION } from "src/graphql/mutations/submission";
 import { GET_POSTER } from "src/graphql/queries/poster";
 
 // Local components
 import Editor from "src/components/Editor";
 import Page from "src/components/Page";
 import Wallet from "src/components/Wallet";
+
+const statuses = {
+  1: "In Queue",
+  2: "Processing",
+  3: "Accepted",
+  4: "Wrong Answer",
+  5: "Time Limit Exceeded",
+  6: "Compilation Error",
+  7: "Runtime Error (SIGSEGV)",
+  8: "Runtime Error (SIGXFSZ)",
+  9: "Runtime Error (SIGFPE)",
+  10: "Runtime Error (SIGABRT)",
+  11: "Runtime Error (NZEC)",
+  12: "Runtime Error (Other)",
+  13: "Internal Error",
+  14: "Exec Format Error",
+};
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -48,7 +64,7 @@ const RunCode = ({ match }) => {
 
   // Init apollo queries
   const [addSubmission, addSubmissionResult] = useMutation(ADD_SUBMISSION);
-  const [checkSubmission, checkSubmissionResult] = useLazyQuery(CHECK_SUBMISSION);
+  const [checkSubmission, checkSubmissionResult] = useMutation(CHECK_SUBMISSION);
 
   // Set code and run
   const [code, setCode] = useState("");
@@ -64,7 +80,7 @@ const RunCode = ({ match }) => {
     const { loading, data, error } = addSubmissionResult;
     if (!loading && data && !error) {
       const { id } = data.addSubmission;
-      checkSubmission({ variables: { id }, useCache: false });
+      checkSubmission({ variables: { id } });
     }
   });
 
