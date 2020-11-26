@@ -28,6 +28,7 @@ import { GET_POSTER } from "src/graphql/queries/poster";
 // Local components
 import Editor from "src/components/Editor";
 import Page from "src/components/Page";
+import Wallet from "src/components/Wallet";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -42,6 +43,9 @@ const RunCode = ({ match }) => {
   // Init style
   const classes = useStyles();
 
+  // Retrieve posterId from url params
+  const { id: posterId } = match.params;
+
   // Init apollo queries
   const [addSubmission, addSubmissionResult] = useMutation(ADD_SUBMISSION);
   const [checkSubmission, checkSubmissionResult] = useLazyQuery(CHECK_SUBMISSION);
@@ -52,7 +56,7 @@ const RunCode = ({ match }) => {
     setCode(newCode);
   });
   const runCode = useCallback(() => {
-    addSubmission({ variables: { code } });
+    addSubmission({ variables: { code, posterId } });
   });
 
   // Callback to refresh the code result
@@ -65,8 +69,7 @@ const RunCode = ({ match }) => {
   });
 
   // Get poster
-  const { id } = match.params;
-  const { loading: posterLoading, error: posterError, data: posterData } = useQuery(GET_POSTER, { variables: { id } });
+  const { loading: posterLoading, error: posterError, data: posterData } = useQuery(GET_POSTER, { variables: { id: posterId } });
   if (posterLoading || (!posterError && !posterData)) {
     return (
       <Spin />
@@ -153,9 +156,7 @@ const RunCode = ({ match }) => {
               title={"Your wallet info"}
             />
             <CardContent>
-              <Typography variant="body2" color="textSecondary" component="p">
-                <div>Account: </div>
-              </Typography>
+              <Wallet />
             </CardContent>
           </Card>
         </Grid>

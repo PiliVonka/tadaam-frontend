@@ -30,11 +30,11 @@ const AddPosterView = () => {
   const [AddPoster] = useMutation(posterMutations.ADD_POSTER);
 
   const handleSubmitForm = async (values, actions) => {
-    const { title, description } = values;
+    const { title, description, stdin, stdout } = values;
     // const { setErrors, setSubmitting } = actions;
-    console.log({ title, description });
+    console.log({ title, description, stdin, stdout });
 
-    AddPoster({ variables: { title, description } }).then(
+    AddPoster({ variables: { title, description, stdin, stdout } }).then(
       (res) => {
         message.success(JSON.stringify(res));
         console.log({ res });
@@ -42,16 +42,18 @@ const AddPosterView = () => {
       (err) => {
         const errors = {};
         console.log({ err });
-        err.graphQLErrors.map((x) => {
+        err.graphQLErrors.map(x => {
           if (x.message.includes("email")) {
             errors.email = "Email has already been taken.";
           }
           if (x.message.includes("username")) {
             errors.username = "Username has already been taken.";
           }
+          return x;
         });
         // setSubmitting(false);
         // setErrors(errors);
+        alert(JSON.stringify(err));
       }
     );
   };
@@ -69,6 +71,8 @@ const AddPosterView = () => {
             initialValues={{
               title: "",
               description: "",
+              stdin: "",
+              stdout: "",
             }}
             onSubmit={(values, actions) => handleSubmitForm(values, actions)}
           >
@@ -102,6 +106,28 @@ const AddPosterView = () => {
                   onBlur={handleBlur}
                   onChange={handleChange}
                   value={values.description}
+                  variant="outlined"
+                />
+                <TextField
+                  label="Input"
+                  margin="normal"
+                  name="stdin"
+                  rows={10}
+                  multiline
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  value={values.stdin}
+                  variant="outlined"
+                />
+                <TextField
+                  label="Output"
+                  margin="normal"
+                  name="stdout"
+                  rows={10}
+                  multiline
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  value={values.stdout}
                   variant="outlined"
                 />
                 <Box my={2}>

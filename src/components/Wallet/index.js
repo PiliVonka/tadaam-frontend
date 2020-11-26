@@ -19,7 +19,7 @@ const Wallet = () => {
   // Get ethereum wallet info
   const { account, activate, active } = useWeb3React();
   useEffect(() => {
-    activate(injectedConnector);
+    // activate(injectedConnector);
   });
   if (!active) {
     return (
